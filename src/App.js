@@ -4,6 +4,7 @@ import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
 import Dashboard from './components/Dashboard/Dashboard'; 
 import SetGoals from './components/SetGoals/SetGoals'; 
+import { icons } from './icons'; 
 import './App.css';
 
  
@@ -46,7 +47,7 @@ class App extends Component {
             : (
                 route === 'setgoals'
                 ? <div>
-                    <SetGoals />
+                    <SetGoals icons={icons} />
                 </div>
                 : (
                   route === 'signin'
