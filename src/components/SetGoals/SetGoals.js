@@ -10,7 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = theme => ({
     typography: {
-      padding: theme.spacing.unit * 2,
+      padding: theme.spacing.unit * 1,
     },
   });
 
@@ -19,34 +19,15 @@ class SetGoals extends React.Component {
         super(props);
         this.state = {
             route: 'startButton',
-            goalStart: '',
-            goalEnd: '',
             goalTitle: '',
             goalDesc: '',
+            goalIcon: '',
             goalList: [],
             anchorEl: null,
             open: false
         }
     } 
-
-    /*This function needs to run when submit button is clicked on register or if todays 
-    date is equal to goal-end data in database */
-    componentWillMount() {
-        
-           fetch('http://localhost:3000/setgoals', {
-                method:'get',
-                headers: {'Content-Type': 'application/json'},
-           })
-           .then(response => response.json())
-           .then(date => {
-                this.setState({
-                    goalStart: date.goalstart,
-                    goalEnd: date.goalend,
-
-                })
-           })
-           .catch(console.log)
-    }
+    
     //sets current goal title being edited to state.goalTitle so we can grab it and push it into the goaltitle list
     onTitleChange = (event) => {
         this.setState({goalTitle: event.target.value})
@@ -58,26 +39,48 @@ class SetGoals extends React.Component {
     // then it will map over that array and add those goals to the page
     // note: function checks to make sure there are no more than six goals
     addGoal = () => {
-        const { goalTitle, goalDesc, goalList} = this.state;
+        const { goalTitle, goalDesc, goalIcon, goalList} = this.state;
         if(goalList.length === 6) {
             alert('Already at 6 goals, please submit to move forward');
         } else {
-            goalTitle !== '' && goalDesc !== "" 
-                ? goalList.push({title: goalTitle, desc: goalDesc})
+            goalTitle !== '' && goalDesc !== "" && goalIcon !==""
+                ? goalList.push({title: goalTitle, desc: goalDesc, icon: goalIcon})
                 : alert('cannot set an empty goal')
         
         console.log(goalList);
-        this.setState({goalTitle: ''});
-        this.setState({goalDesc: ''});  
+        this.setState({
+            goalTitle: '',
+            goalDesc: '',
+            goalIcon: '' 
+          }); 
         }
         
     }
     /*onSubmitGoals will set goals into the user_profile database and will redirect the form to the dashboard */
     onSubmitGoals = () => {
+        const { user } = this.props;
+        
         if(this.state.goalList.length < 3) {
             alert('must have at least 3 goals')
         } else {
-            alert('sending goals to server')
+            fetch('http://localhost:3000/submitGoals', {
+                method: 'put',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  goalList: this.state.goalList, 
+                  id: user.id
+               })
+           })
+           .then(response => response.json())
+           .then(user => {
+              if(user.id) {
+                this.props.loadGoals(user)
+                this.props.onRouteChange('setgoal')//eventually change that to dashboard
+              }
+            })
+           .catch(err => {
+               console.log('Request failure: ', err)
+            })
         }
     }
     /*modal functions*/
@@ -89,29 +92,36 @@ class SetGoals extends React.Component {
         }));
       };
 
+    setIcon = (event) => {
+        this.setState({goalIcon: event.target.src, open:!this.state.open}) 
+    }
+
     render() {
         const { classes } = this.props;
         const { goalList, anchorEl, open } = this.state;
         const id = open ? 'simple-popper' : null;
-        const { icons } = this.props; 
+        const { icons, user } = this.props; 
         const iconList = icons.map((icon, i) => {
             return (
               <img 
-                className= "pa1 center"
+                className= "pa2 center"
+                key={i}
                 src={icons[i]} 
+                alt='goal icon'
                 width="30px"
                 height="30px"
+                onClick={this.setIcon}
               />
             )
         })
         
         return (  
 
-            <article className="br3 ba b--black-10 mv4 w-90 w-50-m w-50-l mw9 shadow-5 center" >
+            <article className="br3 ba b--black-10 mv4 w-90 w-50-m w-50-l mw9 shadow-5 center bg-white" >
                 <main className="pa4 black-80">
-                    <div className="measure">
+                    <div className="measure center">
                     <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
-                        <legend className="f3 fw6 ph0 mh0">Goal range: {this.state.goalStart} - {this.state.goalEnd}</legend>
+                        <legend className="f3 fw6 ph0 mh0">Goal range: {user.goalStart} - {user.goalEnd}</legend>
                         
                         <div>
                               {
@@ -121,6 +131,7 @@ class SetGoals extends React.Component {
                                         key={i}
                                         title={goalList[i].title}
                                         desc={goalList[i].desc}
+                                        icon={goalList[i].icon}
                                     />
                                 );
                               })
@@ -143,7 +154,7 @@ class SetGoals extends React.Component {
                         <div className="mt3">
                         <label className="db fw6 lh-copy f6" htmlFor="goalDesc">Desc of goal</label>
                         <input 
-                            className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
+                            className=" pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
                             type="text" 
                             name="goalDesc"  
                             id="goalDesc" 
@@ -165,11 +176,13 @@ class SetGoals extends React.Component {
                             />
                             <span className="pa2 lh-copy">Goal identifier</span>
                             
-                                
-
-                            {/*This dialog box is close to what we want but really we need a popper, check
-                            documentation */}
-                            <Popper id={id} open={open} anchorEl={anchorEl} transition>
+                            <Popper 
+                                className=" center mw5"
+                                id={id} 
+                                open={open} 
+                                anchorEl={anchorEl} 
+                                transition
+                            >
                                 {({ TransitionProps }) => (
                                      <Fade {...TransitionProps} timeout={350}>
                                         <Paper>

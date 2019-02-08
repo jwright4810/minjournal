@@ -9,13 +9,45 @@ import './App.css';
 
  
 const initialState = {
-  route: 'setgoals',
+  route: 'signin',
   isSignedIn: false,
   user: {
     id: '',
     name: '',
     email: '',
     password: '',
+    goalStart: '',
+    goalEnd:'',
+    goalOne: {
+      title: '',
+      desc: '',
+      icon: ''
+    },
+    goalTwo: {
+      title: '',
+      desc: '',
+      icon: ''
+    },
+    goalThree: {
+      title: '',
+      desc: '',
+      icon: ''
+    },
+    goalFour: {
+      title: '',
+      desc: '',
+      icon: ''
+    },
+    goalFive: {
+      title: '',
+      desc: '',
+      icon: ''
+    },
+    goalSix: {
+      title: '',
+      desc: '',
+      icon: ''
+    }
   }
 }
 
@@ -25,6 +57,51 @@ class App extends Component {
     this.state = initialState
   }
 
+  loadUser = (data) => {
+    this.setState({  user: {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      goalStart: data.goal_start,
+      goalEnd: data.goal_end,
+    }})
+  }
+
+  loadGoals = (data) => {
+    this.setState({user: {
+      goalOne: {
+        title: data.goal_1,
+        desc: data.goal_1_desc,
+        icon: data.goal_1_icon
+      },
+      goalTwo: {
+        title: data.goal_2,
+        desc: data.goal_2_desc,
+        icon: data.goal_2_icon
+      },
+      goalThree: {
+        title: data.goal_3,
+        desc: data.goal_3_desc,
+        icon: data.goal_3_icon
+      },
+      goalFour: {
+        title: data.goal_4,
+        desc: data.goal_4_desc,
+        icon: data.goal_4_icon
+      },
+      goalFive: {
+        title: data.goal_5,
+        desc: data.goal_5_desc,
+        icon: data.goal_5_icon
+      },
+      goalSix: {
+        title: data.goal_6,
+        desc: data.goal_6_desc,
+        icon: data.goal_6_icon
+      }
+    }})
+  }
 
   onRouteChange = (route) => {
     if (route === 'signout') {
@@ -36,7 +113,7 @@ class App extends Component {
   }
   
   render() {
-    const { isSignedIn, route } = this.state;
+    const { isSignedIn, route, user} = this.state;
     return (
       <div className="App">
         <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
@@ -47,7 +124,13 @@ class App extends Component {
             : (
                 route === 'setgoals'
                 ? <div>
-                    <SetGoals icons={icons} />
+                    <SetGoals 
+                      icons={icons} 
+                      loadGoals={this.loadGoals}
+                      onRouteChange={this.onRouteChange}
+                      user={user}
+                      
+                      />
                 </div>
                 : (
                   route === 'signin'
