@@ -1,0 +1,20 @@
+.iconbtn {
+    padding: 0;
+    font: inherit;
+    border: none; 
+    color: inherit;
+    background-color: transparent 
+}
+.iconbtn:focus { outline: none }
+
+.icons:hover { 
+    border: 2px solid rgba(105,165,255,0.59);
+    border-radius: 2px
+}
+
+.textarea { resize: none; }
+.textarea::-webkit-scrollbar { width: 0 !important }
+
+.border-hover:hover {
+    border: 1px solid white;
+}

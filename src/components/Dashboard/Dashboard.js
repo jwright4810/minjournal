@@ -1,11 +1,20 @@
 import React from 'react'; 
 
-const Dashboard = () => {
-    return (
-        <div>
-            <h1>This will be the dashboard to review goals</h1>
-        </div>
-    );
+class Dashboard extends React.Component {
+    constructor(props) {
+    super(props);    
+    
+  }
+
+
+
+ render() {
+     return (
+         <div>
+             <h2>Hello {this.props.user.name}</h2>
+         </div>
+     );
+  } 
 }
 
 export default Dashboard; 

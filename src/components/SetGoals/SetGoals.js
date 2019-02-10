@@ -1,18 +1,12 @@
 import React from 'react'; 
 import Plus from './icon-plus.svg';
 import DisplayFormGoals from '../DisplayFormGoals/displayFormGoals';
-import PropTypes from 'prop-types'; 
-import Popper from '@material-ui/core/Popper';
-import Typography from '@material-ui/core/Typography'; 
-import Fade from '@material-ui/core/Fade';
-import Paper from '@material-ui/core/Paper';
-import { withStyles } from '@material-ui/core/styles';
+import Popover from 'react-bootstrap/Popover'
+import Overlay from 'react-bootstrap/Overlay'
+import Button from 'react-bootstrap/Button'
+import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
+import './SetGoals.css';
 
-const styles = theme => ({
-    typography: {
-      padding: theme.spacing.unit * 1,
-    },
-  });
 
 class SetGoals extends React.Component {
     constructor(props) {
@@ -23,8 +17,8 @@ class SetGoals extends React.Component {
             goalDesc: '',
             goalIcon: '',
             goalList: [],
-            anchorEl: null,
-            open: false
+            show: false,
+            usedIcons: []          
         }
     } 
     
@@ -47,7 +41,7 @@ class SetGoals extends React.Component {
                 ? goalList.push({title: goalTitle, desc: goalDesc, icon: goalIcon})
                 : alert('cannot set an empty goal')
         
-        console.log(goalList);
+      
         this.setState({
             goalTitle: '',
             goalDesc: '',
@@ -75,7 +69,7 @@ class SetGoals extends React.Component {
            .then(user => {
               if(user.id) {
                 this.props.loadGoals(user)
-                this.props.onRouteChange('setgoal')//eventually change that to dashboard
+                this.props.onRouteChange('home')
               }
             })
            .catch(err => {
@@ -83,28 +77,34 @@ class SetGoals extends React.Component {
             })
         }
     }
-    /*modal functions*/
-    handleClick = event => {
-        const { currentTarget } = event;
-        this.setState(state => ({
-          anchorEl: currentTarget,
-          open: !state.open,
-        }));
+    /*popover functions*/
+    handleClick = ({ target }) => {
+        this.setState(s => ({ target, show: !s.show }));
       };
 
     setIcon = (event) => {
-        this.setState({goalIcon: event.target.src, open:!this.state.open}) 
+        const {usedIcons} = this.state;
+
+        if(usedIcons.indexOf(event.target.src) === -1) {
+            this.setState({
+                goalIcon: event.target.src,
+                show: !this.state.show,
+            })
+            usedIcons.push(event.target.src);
+            console.log(usedIcons);
+        } else {
+            alert('Icon already used.')
+        }       
     }
 
     render() {
-        const { classes } = this.props;
-        const { goalList, anchorEl, open } = this.state;
-        const id = open ? 'simple-popper' : null;
+        
+        const { goalList } = this.state;
         const { icons, user } = this.props; 
         const iconList = icons.map((icon, i) => {
             return (
               <img 
-                className= "pa2 center"
+                className= "icons pa2 center"
                 key={i}
                 src={icons[i]} 
                 alt='goal icon'
@@ -117,13 +117,14 @@ class SetGoals extends React.Component {
         
         return (  
 
-            <article className="br3 ba b--black-10 mv4 w-90 w-50-m w-50-l mw9 shadow-5 center bg-white" >
+            <article className="br3 ba b--black-10 mv4 w-90 w-75-m w-50-l mw9 shadow-5 center bg-transparent" >
                 <main className="pa4 black-80">
                     <div className="measure center">
-                    <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
-                        <legend className="f3 fw6 ph0 mh0">Goal range: {user.goalStart} - {user.goalEnd}</legend>
+                    <fieldset id="sign_up" className="ba b--transparent ph0 mh0 mb0">
+                        <legend className="f3 fw6 ph0 mh0">Goal range</legend>
+                        <h3>{user.goalStart} - {user.goalEnd}</h3>
                         
-                        <div>
+                        <div >
                               {
                               goalList.map((goal, i) => {
                                 return (
@@ -132,6 +133,8 @@ class SetGoals extends React.Component {
                                         title={goalList[i].title}
                                         desc={goalList[i].desc}
                                         icon={goalList[i].icon}
+                                        index={i}
+                                       
                                     />
                                 );
                               })
@@ -142,7 +145,7 @@ class SetGoals extends React.Component {
                         <div className="mt4">
                         <label className="db fw6 lh-copy f6" htmlFor="goal">Goal</label>
                         <input 
-                            className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
+                            className="pa2 br2 input-reset ba bg-transparent hover-bg-navy hover-white w-100" 
                             type="text" 
                             name="goal"  
                             id="goal" 
@@ -152,50 +155,48 @@ class SetGoals extends React.Component {
                         />
                         </div>
                         <div className="mt3">
-                        <label className="db fw6 lh-copy f6" htmlFor="goalDesc">Desc of goal</label>
-                        <input 
-                            className=" pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
-                            type="text" 
+                        <label className="db fw6 lh-copy f6" htmlFor="goalDesc">Trackable step</label>
+                        <textarea 
+                            className=" textarea br2 pa2 ba b--black input-reset ba bg-transparent hover-bg-navy hover-white border-hover w-100" 
+                            type="textarea" 
+                            rows="4"
                             name="goalDesc"  
                             id="goalDesc" 
-                            placeholder= "detailed description of your goal"
+                            placeholder= "What trackable steps will you do to accomplish this goal?"
                             value={this.state.goalDesc}
                             onChange={this.onDescChange}
-
-                        />
+                        ></textarea>
                         </div>
                         
                         <div className="flex items-center mb1 mt2 "> {/*this needs to be changed to a button when clicked lets you set an icon */}
-                            <img 
-                                className="grow pointer dib"
-                                src={Plus} 
-                                alt="add goal identifier icon" 
-                                width="20px" 
-                                height="20px"
-                                onClick={this.handleClick}   
-                            />
-                            <span className="pa2 lh-copy">Goal identifier</span>
-                            
-                            <Popper 
-                                className=" center mw5"
-                                id={id} 
-                                open={open} 
-                                anchorEl={anchorEl} 
-                                transition
+                        <ButtonToolbar>
+                            <Button className="iconbtn" onClick={this.handleClick}>
+                                <img 
+                                    className="grow pointer mt2 "
+                                    src={Plus} 
+                                    alt="goal icon" 
+                                    width="20px" 
+                                    height="20px"   
+                                /> 
+                            </Button>
+
+                            <Overlay
+                            show={this.state.show}
+                            target={this.state.target}
+                            placement="bottom"
+                            container={this}
+                            containerPadding={20}
                             >
-                                {({ TransitionProps }) => (
-                                     <Fade {...TransitionProps} timeout={350}>
-                                        <Paper>
-                                            <Typography className={classes.typography}>{iconList}</Typography>
-                                        </Paper>
-                                    </Fade>
-                                )}
-                            </Popper>
-                            
+                            <Popover id="popover-contained" className="mt2 w-25 flex flex-wrap bg-white br3 ba b--black-10 shadow-5">
+                                {iconList}
+                            </Popover>
+                            </Overlay>
+                        </ButtonToolbar>
+                        <p className="pl2 pt1">Goal Icon</p>
                         </div>
                         
                     </fieldset>
-                    <div className="addGoal mb3 flex justify-end ">
+                    <div className="addGoal mb1 flex justify-end ">
                         <img 
                             className="grow pointer mt2 "
                             src={Plus} 
@@ -210,7 +211,7 @@ class SetGoals extends React.Component {
                         
                     <div className="submitGoals">
                         <input onClick={this.onSubmitGoals}
-                            className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
+                            className="b ph3 br2 pv2 input-reset ba b--black bg-transparent hover-bg-navy hover-white border-hover grow pointer f6 dib"
                             type="submit" 
                             value="Set Goals" />
                         
@@ -224,10 +225,7 @@ class SetGoals extends React.Component {
     }
 }
 
-SetGoals.propTypes = {
-    classes: PropTypes.object.isRequired,
-  };
 
-export default withStyles(styles)(SetGoals);  
+export default SetGoals;  
 
             

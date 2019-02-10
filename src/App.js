@@ -18,6 +18,8 @@ const initialState = {
     password: '',
     goalStart: '',
     goalEnd:'',
+  },
+  userGoals: { 
     goalOne: {
       title: '',
       desc: '',
@@ -69,7 +71,7 @@ class App extends Component {
   }
 
   loadGoals = (data) => {
-    this.setState({user: {
+    this.setState({userGoals: {
       goalOne: {
         title: data.goal_1,
         desc: data.goal_1_desc,
@@ -113,17 +115,24 @@ class App extends Component {
   }
   
   render() {
-    const { isSignedIn, route, user} = this.state;
+    const { isSignedIn, route, user, userGoals} = this.state;
     return (
       <div className="App">
-        <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
+        
         { route === 'home'
-            ? <div>
-              <Dashboard />
+            ? <div>             
+              <Dashboard 
+                icons={icons}
+                user={user}
+                userGoals={userGoals}
+              />
             </div>
-            : (
+            : <div>
+              <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
+              {(
                 route === 'setgoals'
                 ? <div>
+                     
                     <SetGoals 
                       icons={icons} 
                       loadGoals={this.loadGoals}
@@ -134,10 +143,17 @@ class App extends Component {
                 </div>
                 : (
                   route === 'signin'
-                  ? <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
+                  ? <Signin 
+                      loadUser={this.loadUser} 
+                      loadGoals={this.loadGoals}
+                      onRouteChange={this.onRouteChange}
+                    />
                   : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
                 )
-              )
+              )}
+              </div>
+            
+            
         }
       </div>
     );
