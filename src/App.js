@@ -3,7 +3,8 @@ import Navigation from './components/Navigation/Navigation';
 import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
 import Dashboard from './components/Dashboard/Dashboard'; 
-import SetGoals from './components/SetGoals/SetGoals'; 
+import SetGoals from './components/SetGoals/SetGoals';
+import Modal from 'react-bootstrap/Modal'
 import { icons } from './icons'; 
 import './App.css';
 
@@ -11,13 +12,14 @@ import './App.css';
 const initialState = {
   route: 'signin',
   isSignedIn: false,
+  modalShow: true,
+  goalStart: '',
+  goalEnd:'',
   user: {
     id: '',
     name: '',
     email: '',
-    password: '',
-    goalStart: '',
-    goalEnd:'',
+    password: ''
   },
   userGoals: { 
     goalOne: {
@@ -61,13 +63,17 @@ class App extends Component {
 
   loadUser = (data) => {
     this.setState({  user: {
-      id: data.id,
+      id: data.user_id,
       name: data.name,
       email: data.email,
-      password: data.password,
-      goalStart: data.goal_start,
-      goalEnd: data.goal_end,
     }})
+  }
+
+  loadGoalCycle = (data) => {
+    this.setState({
+      goalStart: data.goal_start,
+      goalEnd: data.goal_end 
+    })
   }
 
   loadGoals = (data) => {
@@ -116,32 +122,44 @@ class App extends Component {
   
   render() {
     const { isSignedIn, route, user, userGoals} = this.state;
+    let modalClose = () => this.setState({ modalShow: false });
+    
     return (
       <div className="App">
         
         { route === 'home'
             ? <div>             
+              <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} /> 
+              
               <Dashboard 
                 icons={icons}
                 user={user}
                 userGoals={userGoals}
+                loadgoals={this.loadGoals}
               />
+              
+              <Modal
+                {...this.props}
+                size="lg"
+                aria-labelledby="contained-modal-title-vcenter"
+                centered
+                show={this.state.modalShow}
+                onHide={modalClose}
+                backdrop={true}
+              >
+                <SetGoals 
+                    icons={icons} 
+                    loadGoals={this.loadGoals}
+                    loadGoalCycle={this.loadGoalCycle}
+                    user={this.state.user}
+                    goalStart={this.state.goalStart}
+                    goalEnd={this.state.goalEnd}
+                />
+              </Modal> 
             </div>
             : <div>
               <Navigation isSignedIn={isSignedIn} onRouteChange={this.onRouteChange} />
               {(
-                route === 'setgoals'
-                ? <div>
-                     
-                    <SetGoals 
-                      icons={icons} 
-                      loadGoals={this.loadGoals}
-                      onRouteChange={this.onRouteChange}
-                      user={user}
-                      
-                      />
-                </div>
-                : (
                   route === 'signin'
                   ? <Signin 
                       loadUser={this.loadUser} 
@@ -149,7 +167,6 @@ class App extends Component {
                       onRouteChange={this.onRouteChange}
                     />
                   : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
-                )
               )}
               </div>
             

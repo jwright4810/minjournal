@@ -1,4 +1,5 @@
 import React from 'react'; 
+import './dFG.css';
 
 const displayFormGoals = ({ title, desc, icon, index }) => {
     return (
@@ -6,11 +7,11 @@ const displayFormGoals = ({ title, desc, icon, index }) => {
             <h1 className="tl f4 pl2 ">Goal #{index + 1}: {title}</h1>
             <p className="tl f6 pl3 pr3 pa3 bg-near-white">Trackable step: {desc}</p>
             <img 
-              className= "pa2 tc"
+              className= "imgpadding"
               src={icon}
               alt= 'goal icon' 
-              width="30px"
-              height="30px"
+              width="40px"
+              height="40px"
               
             />
         </div>

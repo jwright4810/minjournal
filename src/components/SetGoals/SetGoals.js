@@ -3,8 +3,9 @@ import Plus from './icon-plus.svg';
 import DisplayFormGoals from '../DisplayFormGoals/displayFormGoals';
 import Popover from 'react-bootstrap/Popover'
 import Overlay from 'react-bootstrap/Overlay'
-import Button from 'react-bootstrap/Button'
+// import Button from 'react-bootstrap/Button'
 import ButtonToolbar from 'react-bootstrap/ButtonToolbar'
+
 import './SetGoals.css';
 
 
@@ -21,6 +22,29 @@ class SetGoals extends React.Component {
             usedIcons: []          
         }
     } 
+
+    fetchData = () => {
+        const { user } = this.props;
+
+        fetch('http://localhost:3000/newGoalCycle', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              id: user.id
+           })
+       })
+       .then(response => response.json())
+       .then(journalCycle => {
+            this.props.loadGoalCycle(journalCycle); 
+       })
+       .catch(err => {
+        console.log('Request failure: ', err)
+       })
+    }
+    
+    componentDidMount() {
+        this.fetchData(); 
+    }; 
     
     //sets current goal title being edited to state.goalTitle so we can grab it and push it into the goaltitle list
     onTitleChange = (event) => {
@@ -37,7 +61,7 @@ class SetGoals extends React.Component {
         if(goalList.length === 6) {
             alert('Already at 6 goals, please submit to move forward');
         } else {
-            goalTitle !== '' && goalDesc !== "" && goalIcon !==""
+            goalTitle !=='' && goalDesc !=="" && goalIcon !==""
                 ? goalList.push({title: goalTitle, desc: goalDesc, icon: goalIcon})
                 : alert('cannot set an empty goal')
         
@@ -69,7 +93,7 @@ class SetGoals extends React.Component {
            .then(user => {
               if(user.id) {
                 this.props.loadGoals(user)
-                this.props.onRouteChange('home')
+                // this.props.onRouteChange('home')
               }
             })
            .catch(err => {
@@ -100,7 +124,7 @@ class SetGoals extends React.Component {
     render() {
         
         const { goalList } = this.state;
-        const { icons, user } = this.props; 
+        const { icons } = this.props; 
         const iconList = icons.map((icon, i) => {
             return (
               <img 
@@ -108,8 +132,8 @@ class SetGoals extends React.Component {
                 key={i}
                 src={icons[i]} 
                 alt='goal icon'
-                width="30px"
-                height="30px"
+                width="40px"
+                height="40px"
                 onClick={this.setIcon}
               />
             )
@@ -117,12 +141,12 @@ class SetGoals extends React.Component {
         
         return (  
 
-            <article className="br3 ba b--black-10 mv4 w-90 w-75-m w-50-l mw9 shadow-5 center bg-transparent" >
+            
                 <main className="pa4 black-80">
                     <div className="measure center">
                     <fieldset id="sign_up" className="ba b--transparent ph0 mh0 mb0">
                         <legend className="f3 fw6 ph0 mh0">Goal range</legend>
-                        <h3>{user.goalStart} - {user.goalEnd}</h3>
+                        <h3>{this.props.goalStart} - {this.props.goalEnd}</h3>
                         
                         <div >
                               {
@@ -145,7 +169,7 @@ class SetGoals extends React.Component {
                         <div className="mt4">
                         <label className="db fw6 lh-copy f6" htmlFor="goal">Goal</label>
                         <input 
-                            className="pa2 br2 input-reset ba bg-transparent hover-bg-navy hover-white w-100" 
+                            className="pa2 br2 input-reset ba bg-transparent hover-bg-navy w-100" 
                             type="text" 
                             name="goal"  
                             id="goal" 
@@ -157,7 +181,7 @@ class SetGoals extends React.Component {
                         <div className="mt3">
                         <label className="db fw6 lh-copy f6" htmlFor="goalDesc">Trackable step</label>
                         <textarea 
-                            className=" textarea br2 pa2 ba b--black input-reset ba bg-transparent hover-bg-navy hover-white border-hover w-100" 
+                            className=" textarea br2 pa2 ba b--black input-reset ba bg-transparent hover-bg-navy border-hover w-100" 
                             type="textarea" 
                             rows="4"
                             name="goalDesc"  
@@ -169,30 +193,35 @@ class SetGoals extends React.Component {
                         </div>
                         
                         <div className="flex items-center mb1 mt2 "> {/*this needs to be changed to a button when clicked lets you set an icon */}
-                        <ButtonToolbar>
-                            <Button className="iconbtn" onClick={this.handleClick}>
+                        <ButtonToolbar >
                                 <img 
                                     className="grow pointer mt2 "
                                     src={Plus} 
                                     alt="goal icon" 
                                     width="20px" 
-                                    height="20px"   
+                                    height="20px" 
+                                    onClick={this.handleClick}  
                                 /> 
-                            </Button>
+                            
 
                             <Overlay
                             show={this.state.show}
                             target={this.state.target}
-                            placement="bottom"
+                            placement="left"
                             container={this}
                             containerPadding={20}
+                            
                             >
-                            <Popover id="popover-contained" className="mt2 w-25 flex flex-wrap bg-white br3 ba b--black-10 shadow-5">
+                            <Popover 
+                                id="popover-contained" 
+                                className="mt2 w-25 flex flex-wrap bg-white br3 ba b--black-10 shadow-5"
+                                // style={{zIndex: 10}}
+                                >
                                 {iconList}
                             </Popover>
                             </Overlay>
                         </ButtonToolbar>
-                        <p className="pl2 pt1">Goal Icon</p>
+                        <p className="pl2 goalicon">Goal Icon</p>
                         </div>
                         
                     </fieldset>
@@ -213,14 +242,17 @@ class SetGoals extends React.Component {
                         <input onClick={this.onSubmitGoals}
                             className="b ph3 br2 pv2 input-reset ba b--black bg-transparent hover-bg-navy hover-white border-hover grow pointer f6 dib"
                             type="submit" 
-                            value="Set Goals" />
+                            value="Set Goals" 
+                              
+                            />
                         
 
                     </div>
                 
                     </div>
             </main>
-        </article>
+       
+    //   </Modal>
         );
     }
 }

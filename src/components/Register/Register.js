@@ -11,6 +11,11 @@ class Register extends React.Component {
             email: '',
             password: '',
             name: '',
+            birthday: {
+                month: '',
+                day: '',
+                year: '',
+            }
         }
     }
 
@@ -25,6 +30,23 @@ class Register extends React.Component {
     onPasswordChange = (event) => {
         this.setState({password: event.target.value})
     }
+    onBirthdayChange = (event) => {
+        const bday = {...this.state.birthday};
+        if(event.target.name === 'bday-month') {
+            if(event.target.value !== 'Month') {
+                bday.month = event.target.value;
+                this.setState({birthday: bday});    
+            } 
+        } else if (event.target.name === 'bday-day') {
+            bday.day = event.target.value;
+            this.setState({birthday: bday});  
+        } else if (event.target.name === 'bday-year') {
+            bday.year = event.target.value;
+            this.setState({birthday: bday});  
+        }
+    }
+
+
 
     onSubmitSignIn = () => {
         fetch('http://localhost:3000/register', {
@@ -34,13 +56,14 @@ class Register extends React.Component {
                 email: this.state.email,
                 password: this.state.password,
                 name: this.state.name,
+                birthday: `${this.state.birthday.month}/${this.state.birthday.day}/${this.state.birthday.year}`
             })
         })
             .then(response => response.json())
             .then(user => {
-                if(user.id) {
+                if(user.user_id) {
                     this.props.loadUser(user)
-                    this.props.onRouteChange('setgoals')
+                    this.props.onRouteChange('home')
                 }
             })
         
@@ -74,6 +97,49 @@ class Register extends React.Component {
                             onChange={this.onEmailChange}
 
                         />
+                        </div>
+                        <div className="mt3">
+                        <label className="db fw6 lh-copy f6" htmlFor="birthday">Birthday </label>
+                            <div className="bday-form">
+                            <select
+                                className="bd-ma pa2 br2 w-30"
+                                type="text"
+                                name="bday-month"
+                                id="bday-month"
+                                onChange={this.onBirthdayChange}
+                             >
+                           <option className="month-defaultvalue opt-style" defaultValue="Month">Month</option>
+                           <option className="opt-style" value="01">January</option>
+                           <option value="02">Feburary</option>
+                           <option value="03">March</option>
+                           <option value="04">April</option>
+                           <option value="05">May</option>
+                           <option value="06">June</option>
+                           <option value="07">July</option>
+                           <option value="08">August</option>
+                           <option value="09">September</option>
+                           <option value="10">October</option>
+                           <option value="11">November</option>
+                           <option value="12">December</option>
+                        </select>
+
+                        <input 
+                            placeholder="Day"
+                            className="bd-ma outline-transparent pa2 br2 input-reset ba bg-transparent  w-30"
+                            type="bday-day"
+                            name="bday-day"
+                            id="bday-day"
+                            onChange={this.onBirthdayChange}
+                        />
+                        <input 
+                            placeholder="Year"
+                            className="bd-ma outline-transparent pa2 br2 input-reset ba bg-transparent w-30"
+                            type="bday-year"
+                            name="bday-year"
+                            id="bday-year"
+                            onChange={this.onBirthdayChange}
+                         />
+                            </div>
                         </div>
                         <div className="mv3">
                         <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>

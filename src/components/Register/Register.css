@@ -1,0 +1,28 @@
+.bday-form {
+    display: flex;
+
+}
+
+.bd-ma {
+    margin: 0 2vw; 
+    border-color: black;
+    background: transparent;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-indent: 1px;
+    text-overflow: '';
+    
+}
+.bd-ma::hover {
+    border-color: white;
+}
+
+
+.month-defaultvalue {
+    font: gray; 
+}
+
+.opt-style {
+    background-color: transparent; 
+    font: blue; 
+}
